@@ -1,0 +1,71 @@
+body {
+    background-color: aliceblue;
+}
+
+/* Navigation bar container */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f698e3; /* Dark background */
+    padding: 10px 20px;
+    color: white;
+}
+
+/* Navigation links container */
+.nav-links {
+    list-style: none; /* Remove bullet points */
+    display: flex;
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+}
+
+/* Style individual list items */
+.nav-links li {
+    margin-left: 20px;
+}
+
+/* Style the links */
+.nav-links a {
+    color: white; /* Text color */
+    text-decoration: none; /* Remove underline */
+    font-size: 1rem;
+    transition: color 0.3s ease; /* Smooth hover effect */
+}
+
+/* Hover state for the links */
+.nav-links a:hover {
+    color: #00bcd4; /* Change color on hover */
+}
+
+.title {
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    text-decoration: underline;
+    text-decoration-color: #f698e3;
+}
+
+.box-model{
+    padding:10px;
+    background-color: aliceblue;
+    border: 5px solid rgb(247, 229, 240);
+    margin: 15px; 
+}
+
+.header-image {
+    width: 100%;         /* Make the image take up the full width of the screen */
+    height: auto;        /* Maintain the image's aspect ratio */
+    display: block;  
+}
+
+.quote {
+    margin-left: 50px;
+    text-align: center;
+    font-family:Verdana, Geneva, Tahoma, sans-serif
+}
+
+.list {
+    font-size: 20px;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+

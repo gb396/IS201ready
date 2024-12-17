@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barbie-Themed Snake Game</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #ff91ca, #ff69b4);
+      font-family: Arial, sans-serif;
+      color: #ffffff;
+    }
+
+    canvas {
+      background-color: #fff0f6; /* Light Pink */
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      border: 3px solid #ff1493; /* Deep Pink */
+    }
+
+    #gameOverOverlay {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 105, 180, 0.9); /* Pink Overlay */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #ffffff;
+      font-size: 2rem;
+      text-align: center;
+    }
+
+    #gameOverOverlay button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      border: none;
+      background-color: #ff1493; /* Deep Pink */
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    #gameOverOverlay button:hover {
+      background-color: #e91375; /* Slightly darker pink */
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <div id="gameOverOverlay">
+    <p id="gameOverMessage"></p>
+    <button onclick="initGame()">Play Again</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const gridSize = 20;
+    const tileSize = canvas.width / gridSize;
+
+    let snake, direction, nextDirection, food, score, gameOver;
+
+    const gameOverOverlay = document.getElementById('gameOverOverlay');
+    const gameOverMessage = document.getElementById('gameOverMessage');
+
+    // Initialize the game
+    function initGame() {
+      gameOverOverlay.style.display = 'none';
+      snake = [{ x: 10, y: 10 }];
+      direction = { x: 0, y: 0 };
+      nextDirection = { x: 0, y: 0 };
+      food = generateFood();
+      score = 0;
+      gameOver = false;
+      gameLoop();
+    }
+
+    function generateFood() {
+      let position;
+      while (!position || snake.some(segment => segment.x === position.x && segment.y === position.y)) {
+        position = {
+          x: Math.floor(Math.random() * gridSize),
+          y: Math.floor(Math.random() * gridSize)
+        };
+      }
+      return position;
+    }
+
+    // Draw a circular fruit (apple-like)
+    function drawFruit(x, y) {
+      ctx.fillStyle = '#ff0000'; // Red color for the fruit
+      ctx.beginPath();
+      ctx.arc(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2, tileSize / 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw the "stem"
+      ctx.fillStyle = '#6b8e23'; // Green color for the stem
+      ctx.beginPath();
+      ctx.moveTo(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2 - tileSize / 2);
+      ctx.lineTo(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2 - tileSize / 1.5);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#6b8e23'; // Same green color
+      ctx.stroke();
+    }
+
+    function update() {
+      if (gameOver) return;
+
+      if (nextDirection.x !== 0 || nextDirection.y !== 0) direction = nextDirection;
+
+      if (direction.x === 0 && direction.y === 0) return;
+
+      const head = {
+        x: snake[0].x + direction.x,
+        y: snake[0].y + direction.y
+      };
+
+      if (
+        head.x < 0 || head.y < 0 ||
+        head.x >= gridSize || head.y >= gridSize ||
+        snake.some(segment => segment.x === head.x && segment.y === head.y)
+      ) {
+        gameOver = true;
+        showGameOver();
+        return;
+      }
+
+      snake.unshift(head);
+
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        food = generateFood();
+      } else {
+        snake.pop();
+      }
+    }
+
+    function showGameOver() {
+      gameOverMessage.textContent = `Game Over! Your score: ${score}`;
+      gameOverOverlay.style.display = 'flex';
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw the fruit
+      drawFruit(food.x, food.y);
+
+      // Draw the snake with circles
+      snake.forEach((segment, index) => {
+        const color = index === 0 ? '#ff1493' : '#ff69b4'; // Deep pink head, lighter pink body
+        drawCircle(segment.x, segment.y, color);
+
+        // Draw eyes on the snake head
+        if (index === 0) drawEyes(segment.x, segment.y);
+      });
+
+      ctx.fillStyle = '#ff1493';
+      ctx.font = '18px Arial';
+      ctx.fillText(`Score: ${score}`, 10, 20);
+    }
+
+    // Draw snake's body parts as circles
+    function drawCircle(x, y, color) {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2, tileSize / 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Draw snake's eyes (on the head)
+    function drawEyes(x, y) {
+      ctx.fillStyle = '#ffffff'; // White for eyes
+      const eyeSize = tileSize / 8;
+      const headX = x * tileSize + tileSize / 2;
+      const headY = y * tileSize + tileSize / 2;
+
+      // Left eye
+      ctx.beginPath();
+      ctx.arc(headX - tileSize / 6, headY - tileSize / 6, eyeSize, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Right eye
+      ctx.beginPath();
+      ctx.arc(headX + tileSize / 6, headY - tileSize / 6, eyeSize, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function gameLoop() {
+      update();
+      draw();
+      if (!gameOver) {
+        setTimeout(gameLoop, 100);
+      }
+    }
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'ArrowUp' && direction.y === 0) nextDirection = { x: 0, y: -1 };
+      if (event.key === 'ArrowDown' && direction.y === 0) nextDirection = { x: 0, y: 1 };
+      if (event.key === 'ArrowLeft' && direction.x === 0) nextDirection = { x: -1, y: 0 };
+      if (event.key === 'ArrowRight' && direction.x === 0) nextDirection = { x: 1, y: 0 };
+    });
+
+    initGame();
+  </script>
+</body>
+</html>
